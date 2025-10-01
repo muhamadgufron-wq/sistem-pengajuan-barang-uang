@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '../lib/supabase/client';
+import { createClient } from '@/app/lib/supabase/client';
 
 export default function AjukanBarangPage() {
   const supabase = createClient();
@@ -86,7 +86,7 @@ export default function AjukanBarangPage() {
               <p className="mt-1 text-gray-600">Tambah satu atau beberapa barang sekaligus.</p>
             </div>
             <Link href="/dashboard" className="text-sm font-medium text-indigo-600 hover:underline whitespace-nowrap">
-              &larr; Kembali ke Dashboard
+              &larr; Kembali
             </Link>
           </div>
           

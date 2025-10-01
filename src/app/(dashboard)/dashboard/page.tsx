@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '../lib/supabase/client';
+import { createClient } from '@/app/lib/supabase/client';
 
 // Komponen Card tidak berubah, tetap kita gunakan
 const DashboardCard = ({ href, icon, title, description, isAdminCard = false }) => (
