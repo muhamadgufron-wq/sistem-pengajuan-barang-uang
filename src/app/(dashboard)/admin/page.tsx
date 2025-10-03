@@ -106,7 +106,10 @@ export default function AdminPage() {
             if (!user) { router.push('/login'); return; }
 
             const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-            if (!profile || profile.role !== 'admin') { router.push('/dashboard'); return; }
+            if (!profile || !['admin', 'superadmin'].includes(profile.role)) {
+                router.push('/dashboard'); // Jika tidak diizinkan, tendang ke dashboard
+             return;
+            }
             
             fetchData();
         };
