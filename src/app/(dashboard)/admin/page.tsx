@@ -272,7 +272,7 @@ export default function AdminPage() {
                                                 <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(item.created_at)}</TableCell>
                                                 <TableCell className="px-6 py-4 whitespace-nowrap"><StatusBadge status={item.status} /></TableCell>
                                                 <TableCell className="px-6 py-4 whitespace-nowrap text-right">
-                                                    <Button variant="outline" size="sm" onClick={(e) => {e.stopPropagation(); openUpdateDialog(item)}} className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground transition-colors">
+                                                    <Button variant="outline" size="sm" onClick={(e) => {e.stopPropagation(); openUpdateDialog(item)}} className="bg-green-500 text-primary-foreground hover:bg-green-800/90 hover:text-primary-foreground transition-colors">
                                                         Update Status
                                                     </Button>
                                                 </TableCell>
@@ -341,7 +341,7 @@ export default function AdminPage() {
                             <>
                                 <div className="grid grid-cols-3 items-center gap-4 border-b pb-2"><span className="text-muted-foreground">Nama Barang</span><span className="col-span-2 font-medium">{viewingItem.nama_barang}</span></div>
                                 <div className="grid grid-cols-3 items-center gap-4 border-b pb-2"><span className="text-muted-foreground">Jumlah</span><span className="col-span-2 font-medium">{viewingItem.jumlah} unit</span></div>
-                                <div className="grid grid-cols-3 items-center gap-4 border-b pb-2"><span className="text-muted-foreground">Alasan</span><span className="col-span-2">{viewingItem.alasan}</span></div>
+                                <div className="grid grid-cols-3 items-center gap-4 border-b pb-2"><span className="text-muted-foreground">Keperluan</span><span className="col-span-2">{viewingItem.alasan}</span></div>
                             </>
                         )}
 
