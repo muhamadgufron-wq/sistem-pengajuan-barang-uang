@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/app/lib/supabase/client';
 import { toast } from "sonner";
 
-// Import semua komponen shadcn yang kita butuhkan
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,7 +30,7 @@ const StatusBadge = ({ status }: { status: string }) => {
     return <span className={`px-3 py-1 text-xs font-medium rounded-full ${statusClasses}`}>{status}</span>;
 };
 
-// Define types for your data
+// Mendefinisikan type data
 interface PengajuanBarang {
     id: number;
     created_at: string;
@@ -77,6 +77,7 @@ export default function AdminPage() {
     const [selectedItem, setSelectedItem] = useState<PengajuanBarang | PengajuanUang | null>(null);
     const [newStatus, setNewStatus] = useState('');
     const [adminNote, setAdminNote] = useState('');
+    const [viewingItem, setViewingItem] = useState<PengajuanBarang | PengajuanUang | null>(null);
 
     const fetchData = useCallback(async () => {
         setIsLoading(true);
@@ -151,7 +152,7 @@ export default function AdminPage() {
     const displayedData = activeTab === 'barang' ? pengajuanBarang : pengajuanUang;
 
     return (
-        <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
+        <><Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
             <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-4 sm:p-6 lg:p-8">
                 <div className="max-w-7xl mx-auto space-y-8">
                     {/* Header */}
@@ -177,10 +178,9 @@ export default function AdminPage() {
                                         placeholder="Cari pemohon / item..."
                                         value={searchQuery}
                                         onChange={e => setSearchQuery(e.target.value)}
-                                        className="pl-9"
-                                    />
+                                        className="pl-9" />
                                 </div>
-                                
+
                                 <Select onValueChange={(value) => setStatusFilter(value === 'all' ? '' : value)} value={statusFilter || 'all'}>
                                     <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Semua Status" />
@@ -262,18 +262,17 @@ export default function AdminPage() {
                                         <TableRow><TableCell colSpan={5} className="text-center h-32 text-muted-foreground">Tidak ada data pengajuan yang cocok.</TableCell></TableRow>
                                     ) : (
                                         displayedData.map(item => (
-                                            <TableRow key={item.id} className="hover:bg-gray-50 transition-colors">
+                                            <TableRow key={item.id} onClick={() => setViewingItem(item)} className="hover:bg-gray-50 transition-colors">
                                                 <TableCell className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{item.full_name || 'Tanpa Nama'}</TableCell>
                                                 <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                                    {activeTab === 'barang' 
-                                                        ? `${item.nama_barang} (${item.jumlah} unit)` 
-                                                        : `Rp ${Number((item as PengajuanUang).jumlah_uang).toLocaleString('id-ID')} - ${(item as PengajuanUang).keperluan}`
-                                                    }
+                                                    {activeTab === 'barang'
+                                                        ? `${item.nama_barang} (${item.jumlah} unit)`
+                                                        : `Rp ${Number((item as PengajuanUang).jumlah_uang).toLocaleString('id-ID')} - ${(item as PengajuanUang).keperluan}`}
                                                 </TableCell>
                                                 <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(item.created_at)}</TableCell>
                                                 <TableCell className="px-6 py-4 whitespace-nowrap"><StatusBadge status={item.status} /></TableCell>
                                                 <TableCell className="px-6 py-4 whitespace-nowrap text-right">
-                                                    <Button variant="outline" size="sm" onClick={() => openUpdateDialog(item)} className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground transition-colors">
+                                                    <Button variant="outline" size="sm" onClick={(e) => {e.stopPropagation(); openUpdateDialog(item)}} className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground transition-colors">
                                                         Update Status
                                                     </Button>
                                                 </TableCell>
@@ -311,8 +310,7 @@ export default function AdminPage() {
                                     placeholder="Tulis catatan untuk pemohon di sini..."
                                     value={adminNote}
                                     onChange={(e) => setAdminNote(e.target.value)}
-                                    className="min-h-[100px]"
-                                />
+                                    className="min-h-[100px]" />
                             </div>
                         </div>
                         <DialogFooter>
@@ -325,5 +323,48 @@ export default function AdminPage() {
                 </div>
             </div>
         </Dialog>
+        <Dialog open={!!viewingItem} onOpenChange={(open) => !open && setViewingItem(null)}>
+                <DialogContent className="sm:max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl">Detail Pengajuan #{viewingItem?.id}</DialogTitle>
+                        <DialogDescription>
+                            Diajukan oleh: <span className="font-semibold">{viewingItem?.full_name}</span> pada {viewingItem && formatDate(viewingItem.created_at)}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-3 items-center gap-4 border-b pb-2">
+                            <span className="text-muted-foreground">Status</span>
+                            <div className="col-span-2"><StatusBadge status={viewingItem?.status || ''} /></div>
+                        </div>
+
+                        {activeTab === 'barang' && viewingItem && 'nama_barang' in viewingItem && (
+                            <>
+                                <div className="grid grid-cols-3 items-center gap-4 border-b pb-2"><span className="text-muted-foreground">Nama Barang</span><span className="col-span-2 font-medium">{viewingItem.nama_barang}</span></div>
+                                <div className="grid grid-cols-3 items-center gap-4 border-b pb-2"><span className="text-muted-foreground">Jumlah</span><span className="col-span-2 font-medium">{viewingItem.jumlah} unit</span></div>
+                                <div className="grid grid-cols-3 items-center gap-4 border-b pb-2"><span className="text-muted-foreground">Alasan</span><span className="col-span-2">{viewingItem.alasan}</span></div>
+                            </>
+                        )}
+
+                        {activeTab === 'uang' && viewingItem && 'jumlah_uang' in viewingItem && (
+                            <>
+                                <div className="grid grid-cols-3 items-center gap-4 border-b pb-2"><span className="text-muted-foreground">Nominal</span><span className="col-span-2 font-medium text-lg">Rp {Number(viewingItem.jumlah_uang).toLocaleString('id-ID')}</span></div>
+                                <div className="grid grid-cols-3 items-center gap-4 border-b pb-2"><span className="text-muted-foreground">Keperluan</span><span className="col-span-2">{viewingItem.keperluan}</span></div>
+                                <div className="grid grid-cols-3 items-center gap-4 border-b pb-2 pt-4"><span className="text-muted-foreground col-span-3 font-bold text-primary">Info Rekening</span></div>
+                                <div className="grid grid-cols-3 items-center gap-4 border-b pb-2"><span className="text-muted-foreground">Bank</span><span className="col-span-2 font-medium">{viewingItem.nama_bank}</span></div>
+                                <div className="grid grid-cols-3 items-center gap-4 border-b pb-2"><span className="text-muted-foreground">No. Rekening</span><span className="col-span-2 font-medium">{viewingItem.nomor_rekening}</span></div>
+                                <div className="grid grid-cols-3 items-center gap-4 border-b pb-2"><span className="text-muted-foreground">Atas Nama</span><span className="col-span-2 font-medium">{viewingItem.atas_nama}</span></div>
+                            </>
+                        )}
+
+                        <div className="grid grid-cols-3 items-start gap-4 pt-2">
+                            <span className="text-muted-foreground">Catatan Admin</span>
+                            <div className="col-span-2 text-sm italic bg-yellow-50 p-2 rounded-md">{viewingItem?.catatan_admin || 'Belum ada catatan.'}</div>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setViewingItem(null)}>Tutup</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog></>
     );
 }
